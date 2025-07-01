@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .back-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .back-btn:hover {
+            background-color: #0056b3;
+        }
+        .view-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .view-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .view-btn:hover {
+            background-color: #218838;
+        }
+
+        .view-btn.active {
+            background-color: #dc3545;
+        }
+
+        .view-btn.active:hover {
+            background-color: #c82333;
+        }
+
+        .enter-btn {
+            background-color: #17a2b8;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: auto;
+        }
+
+        .enter-btn:hover {
+            background-color: #138496;
+        }
+
+        .csv-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow: auto;
+            background-color: #fafafa;
+        }
+        .string-view {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow: auto;
+            background-color: #f8f9fa;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+        }
+        
+        th {
+            background-color: #4CAF50;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Returned Results</h1>
+        
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="view-controls">
+            <span>Switch View:</span>
+            <button id="csvViewBtn" class="view-btn active" onclick="showCsvView()">CSV Table</button>
+            <button id="stringViewBtn" class="view-btn" onclick="showStringView()">SPARQL Query</button>
+            <button id="enterBtn" class="enter-btn hidden" onclick="executeQuery()">Enter</button>
+        </div>
+        
+        <div id="csvView" class="csv-container">
+            {% if csv_data and csv_data|length > 0 %}
+                <table>
+                    <thead>
+                        <tr>
+                            {% for header in csv_data[0] %}
+                                <th>{{ header }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in csv_data[1:] %}
+                            <tr>
+                                {% for cell in row %}
+                                    <td>{{ cell }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <div class="no-data">
+                    No data to display
+                </div>
+            {% endif %}
+        </div>
+        <div id="stringView" class="string-view hidden" contenteditable="true" spellcheck="false">
+            {{ sparql_text }}
+        </div>
+    </div>
+
+    <script>
+        function showCsvView() {
+            // Show CSV view, hide string view
+            document.getElementById('csvView').classList.remove('hidden');
+            document.getElementById('stringView').classList.add('hidden');
+            
+            // Hide enter button
+            document.getElementById('enterBtn').classList.add('hidden');
+            
+            // Update button states
+            document.getElementById('csvViewBtn').classList.add('active');
+            document.getElementById('stringViewBtn').classList.remove('active');
+        }
+        
+        function showStringView() {
+            // Show string view, hide CSV view
+            document.getElementById('csvView').classList.add('hidden');
+            document.getElementById('stringView').classList.remove('hidden');
+            
+            // Show enter button
+            document.getElementById('enterBtn').classList.remove('hidden');
+            
+            // Update button states
+            document.getElementById('csvViewBtn').classList.remove('active');
+            document.getElementById('stringViewBtn').classList.add('active');
+        }
+        
+    function executeQuery() {
+        const el = document.getElementById('stringView');
+        if (!el) {
+            alert("SPARQL editor not found.");
+            return;
+        }
+
+        const sparqlText = el.innerText;
+
+        fetch('/execute-query', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ query: sparqlText })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("HTTP error " + response.status);
+            }
+            return response.text();  // ✅ Changed from .json() to .text()
+        })
+        .then(html => {
+            // ✅ Replace the page or inject into a specific div
+            document.body.innerHTML = html;
+            // Or: document.getElementById('resultContainer').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Fetch failed:', error);
+            alert('An error occurred: ' + error.message);
+        });
+    }
+
+    </script>
+</body>
+</html>

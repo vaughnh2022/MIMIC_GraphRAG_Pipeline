@@ -1,0 +1,36 @@
+Convert natural language questions to SPARQL queries for an Ontotext GraphDB containing FHIR resources.
+The output must include a correctly formatted SPARQL query with standard prefixes.
+Do not output any explanatory text outside of the SPARQL query block.
+
+---
+
+## Query Construction Rules
+- Include **all possible optional** properties as `OPTIONAL` clauses in the SPARQL query to retrieve as much information as available without causing query failures.
+-  filter using this structure: FILTER(CONTAINS(LCASE(STR(?display_text)), "pneumonia"))
+    Note ?display_text must be extracted with fhir:v
+- always return the resouce id using this pattern: ?resource fhir:id [ fhir:v ?id ] .
+- Always use SELECT DISTINCT to avoid duplicate results
+- For any literal value (e.g., display, status, dates, codes, units, values), always extract it using fhir:v
+-return identifier when getting medication information
+---
+
+##EXAMPLE KNOWLEDGE GRAPH ENTRY
+{sample}
+---
+
+## PREFIXES USED
+
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX se: <http://example.org/myontology#>
+
+## USE THESE PROPERTIES AND CLASSES  
+{props}
+
+---
+
+
+
+
+
+
