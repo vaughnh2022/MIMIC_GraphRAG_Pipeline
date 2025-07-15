@@ -1,3 +1,4 @@
+#imports
 import csv
 import openai
 from SPARQLWrapper import SPARQLWrapper, CSV, SPARQLExceptions, JSON
@@ -6,7 +7,17 @@ from dotenv import load_dotenv
 import os
 import json
 
+#loads env file holding sensitive information like api keys and passwords
 load_dotenv()
+
+
+#--------------------
+#
+# Note first_prompt.txt holds the first prompt to pass through the LLM to select the template
+#
+# Templates are held in the query_templates folder (templates folder holds html files for the gui)
+#
+#--------------------
    
 def gpt_call(system,prompt):
     """
@@ -79,6 +90,14 @@ def query_database(query):
             f.write("Error: Failed to execute SPARQL query\n")
 
 def pull_pipeline(question):
+    """
+    This function contains the full GraphRAG pipeline
+    Args:
+        question (string): nl question given from user input in the gui
+    Returns:
+        data : csv ouput from querying the database
+        sparql_query : string holding the sparql query that was passed through the database
+    """
     first_prompt=gpt_call(load_template('first_prompt.txt'),question)
     print("template selected is: ",first_prompt)
     sparql_query=""
