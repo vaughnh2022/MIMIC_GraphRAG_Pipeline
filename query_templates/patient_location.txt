@@ -1,0 +1,61 @@
+Convert natural language questions to SPARQL queries for an Ontotext GraphDB containing FHIR resources.  
+The output must include a correctly formatted SPARQL query using the standard prefixes.  
+Do not output any explanatory text outside of the SPARQL query block.
+
+---
+
+## CLASS AND PROPERTIES LIST
+Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
+LocationEncounter[locationReference,periodStart,periodEnd,subjectReference]
+Location[managingOrganizationReference,name,id,typeCodingSystem,typeCodingCode,typeCodingDisplay,status]
+
+---
+
+##Example SPARQL QUERY 
+
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX se: <http://example.org/myontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?patientId ?locationId ?name
+WHERE {
+
+  ?locationEncounter a fhir:LocationEncounter .
+  ?locationEncounter fhir:subjectReference ?patient .
+  ?locationEncounter fhir:locationReference ?location .
+  ?location a fhir:Location .
+  ?patient a fhir:Patient .
+
+  # Optional Patient fields
+  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
+  OPTIONAL { ?patient fhir:gender ?gender. }
+  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:race ?race. }
+  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+  OPTIONAL { ?patient fhir:managingOrganizationReference ?hospitalReference. }
+  OPTIONAL { ?patient fhir:id ?patientId. }
+  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
+  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+
+  # Optional LocationEncounter fields
+  OPTIONAL { ?locationEncounter fhir:periodStart ?periodStart. }
+  OPTIONAL { ?locationEncounter fhir:periodEnd ?periodEnd. }
+
+    # Optional Location fields
+    OPTIONAL { ?location fhir:managingOrganizationReference ?hospitalReference. }
+    OPTIONAL { ?location fhir:name ?name. }
+    OPTIONAL { ?location fhir:id ?locationId. }
+    OPTIONAL { ?location fhir:typeCodingSystem ?typeSystem. }
+    OPTIONAL { ?location fhir:typeCodingCode ?typeCode. }
+    OPTIONAL { ?location fhir:typeCodingDisplay ?typeDisplay. }
+    OPTIONAL { ?location fhir:status ?status. }
+
+}
+
+---
+## QUERY CONSTRUCTION RULES
+-Always filter using FILTER(CONTAINS(LCASE(STR(?name)), "your-filter-text")) 
+-Keep as many fields optional as possible while still working as a query
+-all queries that use count must have a group by
+

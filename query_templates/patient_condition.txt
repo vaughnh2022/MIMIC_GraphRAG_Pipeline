@@ -1,0 +1,55 @@
+Convert natural language questions to SPARQL queries for an Ontotext GraphDB containing FHIR resources.  
+The output must include a correctly formatted SPARQL query using the standard prefixes.  
+Do not output any explanatory text outside of the SPARQL query block.
+
+---
+
+## CLASS AND PROPERTIES LIST
+Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
+Condition[subjectReference, encounterReference, id, identifierSystem, identifierValue, codeCodingSystem, codeCodingCode, codeCodingDisplay, categoryCodingSystem, categoryCodingCode]
+
+
+---
+
+##Example SPARQL QUERY 
+
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX se: <http://example.org/myontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?patientId ?conditionId ?conditionCode ?conditionName ?categoryCode
+WHERE {
+  ?condition a fhir:Condition .
+  ?condition fhir:subjectReference ?patient .
+
+  ?patient a fhir:Patient .
+
+  # Optional Patient fields
+  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
+  OPTIONAL { ?patient fhir:gender ?gender. }
+  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:race ?race. }
+  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+  OPTIONAL { ?patient fhir:managingOrganizationReference ?hospitalReference. }
+  OPTIONAL { ?patient fhir:id ?patientId. }
+  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
+  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+
+  # Optional Condition fields
+  OPTIONAL { ?condition fhir:encounterReference ?encounterReference. }
+  OPTIONAL { ?condition fhir:id ?conditionId. }
+  OPTIONAL { ?condition fhir:identifierSystem ?conditionIdentifierSystem. }
+  OPTIONAL { ?condition fhir:identifierValue ?conditionIdentifierValue. }
+  OPTIONAL { ?condition fhir:codeCodingSystem ?conditionSystem. }
+  OPTIONAL { ?condition fhir:codeCodingCode ?conditionCode. }
+  OPTIONAL { ?condition fhir:codeCodingDisplay ?conditionDisplay. }
+  OPTIONAL { ?condition fhir:categoryCodingSystem ?categorySystem. }
+  OPTIONAL { ?condition fhir:categoryCodingCode ?categoryCode. }
+}
+
+---
+## QUERY CONSTRUCTION RULES
+-Always filter using FILTER(CONTAINS(LCASE(STR(?conditionDisplay)), "your-filter-text")) 
+-Keep as many fields optional as possible while still working as a query
+

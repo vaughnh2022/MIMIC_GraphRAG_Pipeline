@@ -1,0 +1,65 @@
+Convert natural language questions to SPARQL queries for an Ontotext GraphDB containing FHIR resources.  
+The output must include a correctly formatted SPARQL query using the standard prefixes.  
+Do not output any explanatory text outside of the SPARQL query block.
+
+---
+
+## CLASS AND PROPERTIES LIST
+Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
+Procedure[subjectReference, performedPeriodStart, performedPeriodEnd, bodySiteSystem, bodySiteCode, encounterReference, id, identifierSystem, identifierValue, status, codeCodingSystem, codeCodingCode, codeCodingDisplay, categoryCodingSystem, categoryCodingCode, collectedDateTime]
+
+---
+
+##Example SPARQL QUERY 
+
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX se: <http://example.org/myontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?patientId ?procedureId ?codeDisplay ?categoryCode
+WHERE {
+  ?procedure a fhir:Procedure .
+  ?procedure fhir:subjectReference ?patient .
+
+  ?patient a fhir:Patient .
+
+  # Optional Patient fields
+  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
+  OPTIONAL { ?patient fhir:gender ?gender. }
+  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:race ?race. }
+  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+  OPTIONAL { ?patient fhir:managingOrganizationReference ?hospitalReference. }
+  OPTIONAL { ?patient fhir:id ?patientId. }
+  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
+  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+
+  # Optional Procedure Fields
+  OPTIONAL { ?procedure fhir:performedPeriodStart ?performedPeriodStart. }
+  OPTIONAL { ?procedure fhir:performedPeriodEnd ?performedPeriodEnd. }
+  OPTIONAL { ?procedure fhir:bodySiteSystem ?bodySiteSystem. }
+  OPTIONAL { ?procedure fhir:bodySiteCode ?bodySiteCode. }
+  OPTIONAL { ?procedure fhir:encounterReference ?encounterReference. }
+  OPTIONAL { ?procedure fhir:id ?procedureId. }
+  OPTIONAL { ?procedure fhir:identifierSystem ?identifierSystem. }
+  OPTIONAL { ?procedure fhir:identifierValue ?identifierValue. }
+  OPTIONAL { ?procedure fhir:status ?status. }
+  OPTIONAL { ?procedure fhir:codeCodingSystem ?codeSystem. }
+  OPTIONAL { ?procedure fhir:codeCodingCode ?codeCode. }
+  OPTIONAL { ?procedure fhir:codeCodingDisplay ?codeDisplay. }
+  OPTIONAL { ?procedure fhir:categoryCodingSystem ?categorySystem. }
+  OPTIONAL { ?procedure fhir:categoryCodingCode ?categoryCode. }
+  OPTIONAL { ?procedure fhir:collectedDateTime ?collectedDateTime. }
+
+
+}
+
+---
+## QUERY CONSTRUCTION RULES
+-Always filter using FILTER(
+  CONTAINS(LCASE(STR(?codeDisplay)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?categoryCode)), "your-display-text-here")
+) 
+-Keep as many fields optional as possible while still working as a query
+

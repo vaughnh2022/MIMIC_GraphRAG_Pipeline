@@ -1,0 +1,87 @@
+Convert natural language questions to SPARQL queries for an Ontotext GraphDB containing FHIR resources.  
+The output must include a correctly formatted SPARQL query using the standard prefixes.  
+Do not output any explanatory text outside of the SPARQL query block.
+
+---
+
+## CLASS AND PROPERTIES LIST
+Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
+Observation[valueString, issued, valueDateTime, hasMemberReference, derivedFromReference, extensionUrl, extensionValueQuantityComparator, extensionValueQuantityValue, extensionValueString, interpretationCodingSystem, interpretationCodingCode, noteText, rrHighSystem, rrLowSystem, rrHighUnit, rrHighValue, rrHighCode, rrLowUnit, rrLowValue, rrLowCode, vccCodingSystem, vccCodingCode, valueQuantitySystem, valueQuantityValue, valueQuantityComparator, valueQuantityCode, subjectReference, encounterReference, id, identifierSystem, identifierValue, status, codeCodingSystem, codeCodingCode, codeCodingDisplay, categoryCodingSystem, categoryCodingCode, effectiveDateTime]
+
+---
+
+##Example SPARQL QUERY 
+
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX se: <http://example.org/myontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?patientId ?observationId ?typeCode ?typeDisplay ?collectedDateTime ?identifierValue
+WHERE {
+  ?observation a fhir:Observation .
+  ?observation fhir:subjectReference ?patient .
+
+  ?patient a fhir:Patient .
+
+  # Optional Patient fields
+  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
+  OPTIONAL { ?patient fhir:gender ?gender. }
+  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:race ?race. }
+  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+  OPTIONAL { ?patient fhir:managingOrganizationReference ?hospitalReference. }
+  OPTIONAL { ?patient fhir:id ?patientId. }
+  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
+  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+
+  # Optional Observation fields
+    OPTIONAL { ?observation fhir:valueString ?valueString. }
+    OPTIONAL { ?observation fhir:issued ?issued. }
+    OPTIONAL { ?observation fhir:valueDateTime ?valueDateTime. }
+    OPTIONAL { ?observation fhir:hasMemberReference ?hasMemberReference. }
+    OPTIONAL { ?observation fhir:derivedFromReference ?derivedFromReference. }
+    OPTIONAL { ?observation fhir:extensionUrl ?extensionUrl. }
+    OPTIONAL { ?observation fhir:extensionValueQuantityComparator ?extensionValueQuantityComparator. }
+    OPTIONAL { ?observation fhir:extensionValueQuantityValue ?extensionValueQuantityValue. }
+    OPTIONAL { ?observation fhir:extensionValueString ?extensionValueString. }
+    OPTIONAL { ?observation fhir:interpretationCodingSystem ?interpretationCodingSystem. }
+    OPTIONAL { ?observation fhir:interpretationCodingCode ?interpretationCodingCode. }
+    OPTIONAL { ?observation fhir:noteText ?noteText. }
+    OPTIONAL { ?observation fhir:rrHighSystem ?rrHighSystem. }
+    OPTIONAL { ?observation fhir:rrLowSystem ?rrLowSystem. }
+    OPTIONAL { ?observation fhir:rrHighUnit ?rrHighUnit. }
+    OPTIONAL { ?observation fhir:rrHighValue ?rrHighValue. }
+    OPTIONAL { ?observation fhir:rrHighCode ?rrHighCode. }
+    OPTIONAL { ?observation fhir:rrLowUnit ?rrLowUnit. }
+    OPTIONAL { ?observation fhir:rrLowValue ?rrLowValue. }
+    OPTIONAL { ?observation fhir:rrLowCode ?rrLowCode. }
+    OPTIONAL { ?observation fhir:vccCodingSystem ?vccSystem. }
+    OPTIONAL { ?observation fhir:vccCodingCode ?vccCode. }
+    OPTIONAL { ?observation fhir:valueQuantitySystem ?valueQuantitySystem. }
+    OPTIONAL { ?observation fhir:valueQuantityValue ?valueQuantityValue. }
+    OPTIONAL { ?observation fhir:valueQuantityComparator ?valueQuantityComparator. }
+    OPTIONAL { ?observation fhir:valueQuantityCode ?valueQuantityCode. }
+    OPTIONAL { ?observation fhir:subjectReference ?subjectReference. }
+    OPTIONAL { ?observation fhir:encounterReference ?encounterReference. }
+    OPTIONAL { ?observation fhir:id ?observationId. }
+    OPTIONAL { ?observation fhir:identifierSystem ?identifierSystem. }
+    OPTIONAL { ?observation fhir:identifierValue ?identifierValue. }
+    OPTIONAL { ?observation fhir:status ?status. }
+    OPTIONAL { ?observation fhir:codeCodingSystem ?codeSystem. }
+    OPTIONAL { ?observation fhir:codeCodingCode ?codeCode. }
+    OPTIONAL { ?observation fhir:codeCodingDisplay ?codeDisplay. }
+    OPTIONAL { ?observation fhir:categoryCodingSystem ?categorySystem. }
+    OPTIONAL { ?observation fhir:categoryCodingCode ?categoryCode. }
+    OPTIONAL { ?observation fhir:effectiveDateTime ?effectiveDateTime. }
+
+}
+
+---
+## QUERY CONSTRUCTION RULES
+-Always filter using FILTER(
+  CONTAINS(LCASE(STR(?codeDisplay)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?categoryCode)), "your-display-text-here")
+) 
+-Keep as many fields optional as possible while still working as a query
+

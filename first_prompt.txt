@@ -1,0 +1,25 @@
+## AVAILABLE QUERY TEMPLATES
+
+Condition query
+    -If the question has a specific disease name use this query
+Specimen query
+Procedure query
+Encounter query
+Location query
+Organization query
+Observation query
+MedicationAdministration query
+Medication query
+    -If the question has a specific medication name use this query
+MedicationDispense query
+Patient query
+none of the above
+
+
+---
+
+### Instructions:  
+Given a question, **return only** the most relevant query template **in this exact format (no other text):**
+
+---
+

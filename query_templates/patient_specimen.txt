@@ -1,0 +1,56 @@
+Convert natural language questions to SPARQL queries for an Ontotext GraphDB containing FHIR resources.  
+The output must include a correctly formatted SPARQL query using the standard prefixes.  
+Do not output any explanatory text outside of the SPARQL query block.
+
+---
+
+## CLASS AND PROPERTIES LIST
+Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
+Specimen[subjectReference,id,typeCodingSystem,typeCodingCode,typeCodingDisplay,identifierSystem,identifierValue,collectedDateTime]
+
+---
+
+##Example SPARQL QUERY 
+
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX se: <http://example.org/myontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?patientId ?specimenId ?typeCode ?typeDisplay ?collectedDateTime ?identifierValue
+WHERE {
+  ?specimen a fhir:Specimen .
+  ?specimen fhir:subjectReference ?patient .
+
+  ?patient a fhir:Patient .
+
+  # Optional Patient fields
+  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
+  OPTIONAL { ?patient fhir:gender ?gender. }
+  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:race ?race. }
+  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+  OPTIONAL { ?patient fhir:managingOrganizationReference ?managingOrganizationReference. }
+  OPTIONAL { ?patient fhir:id ?patientId. }
+  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
+  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+
+  # Optional Specimen fields
+  OPTIONAL { ?specimen fhir:id ?specimenId. }
+  OPTIONAL { ?specimen fhir:typeCodingSystem ?typeSystem. }
+  OPTIONAL { ?specimen fhir:typeCodingCode ?typeCode. }
+  OPTIONAL { ?specimen fhir:typeCodingDisplay ?typeDisplay. }
+  OPTIONAL { ?specimen fhir:identifierSystem ?identifierSystem. }
+  OPTIONAL { ?specimen fhir:identifierValue ?identifierValue. }
+  OPTIONAL { ?specimen fhir:collectedDateTime ?collectedDateTime. }
+
+}
+
+---
+## QUERY CONSTRUCTION RULES
+-Always filter using FILTER(
+  CONTAINS(LCASE(STR(?typeCode)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?typeDisplay)), "your-display-text-here")
+) 
+-Keep as many fields optional as possible while still working as a query
+

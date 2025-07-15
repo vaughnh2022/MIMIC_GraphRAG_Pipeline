@@ -1,0 +1,80 @@
+Convert natural language questions to SPARQL queries for an Ontotext GraphDB containing FHIR resources.  
+The output must include a correctly formatted SPARQL query using the standard prefixes.  
+Do not output any explanatory text outside of the SPARQL query block.
+
+---
+
+## CLASS AND PROPERTIES LIST
+Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
+MedicationDispense[authorizingPrescriptionReference, subjectReference, contextReference, id, identifierSystem, identifierValue, status, mccCodingSystem, mccCodingCode]
+DosageInstruction[doseQuantitySystem, doseQuantityCode, doseQuantityUnit, doseQuantityValue, maxDosePerPeriodDenominatorSystem, maxDosePerPeriodDenominatorUnit, maxDosePerPeriodDenominatorValue, maxDosePerPeriodNumeratorValue, timingCodeCodingSystem, timingCodeCodingCode, timingRepeatDuration, timingRepeatDurationUnit, routeCodingCode, routeCodingSystem]
+
+---
+
+##Example SPARQL QUERY 
+
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX se: <http://example.org/myontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?patientId ?medicationDispenseId ?mccCode
+WHERE {
+  ?medicationDispense a fhir:MedicationDispense .
+  ?medicationDispense fhir:subjectReference ?patient .
+
+  ?patient a fhir:Patient .
+
+  # Optional Patient fields
+  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
+  OPTIONAL { ?patient fhir:gender ?gender. }
+  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:race ?race. }
+  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+  OPTIONAL { ?patient fhir:managingOrganizationReference ?managingOrganizationReference. }
+  OPTIONAL { ?patient fhir:id ?patientId. }
+  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
+  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+
+  # Optional MedicationDispense fields
+  OPTIONAL { ?medicationDispense fhir:authorizingPrescriptionReference ?authorizingPrescriptionReference. }
+  OPTIONAL { ?medicationDispense fhir:subjectReference ?subjectReference. }
+  OPTIONAL { ?medicationDispense fhir:contextReference ?contextReference. }
+  OPTIONAL { ?medicationDispense fhir:id ?medicationDispenseId. }
+  OPTIONAL { ?medicationDispense fhir:identifierSystem ?identifierSystem. }
+  OPTIONAL { ?medicationDispense fhir:identifierValue ?identifierValue. }
+  OPTIONAL { ?medicationDispense fhir:status ?status. }
+  OPTIONAL { ?medicationDispense fhir:mccCodingSystem ?mccCodingSystem. }
+  OPTIONAL { ?medicationDispense fhir:mccCodingCode ?mccCode. }
+
+  # Optional dosageInstruction fields
+    OPTIONAL {
+    ?medicationDispense fhir:dosageInstructionReference ?dosageInstruction.
+    ?dosageInstruction a fhir:DosageInstruction .
+    OPTIONAL { ?dosageInstruction fhir:doseQuantitySystem ?doseQuantitySystem. }
+    OPTIONAL { ?dosageInstruction fhir:doseQuantityCode ?doseQuantityCode. }
+    OPTIONAL { ?dosageInstruction fhir:doseQuantityUnit ?doseQuantityUnit. }
+    OPTIONAL { ?dosageInstruction fhir:doseQuantityValue ?doseQuantityValue. }
+    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodDenominatorSystem ?maxDosePerPeriodDenominatorSystem. }
+    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodDenominatorUnit ?maxDosePerPeriodDenominatorUnit. }
+    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodDenominatorValue ?maxDosePerPeriodDenominatorValue. }
+    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodNumeratorValue ?maxDosePerPeriodNumeratorValue. }
+    OPTIONAL { ?dosageInstruction fhir:timingCodeCodingSystem ?timingCodeCodingSystem. }
+    OPTIONAL { ?dosageInstruction fhir:timingCodeCodingCode ?timingCodeCodingCode. }
+    OPTIONAL { ?dosageInstruction fhir:timingRepeatDuration ?timingRepeatDuration. }
+    OPTIONAL { ?dosageInstruction fhir:timingRepeatDurationUnit ?timingRepeatDurationUnit. }
+    OPTIONAL { ?dosageInstruction fhir:routeCodingCode ?routeCodingCode. }
+    OPTIONAL { ?dosageInstruction fhir:routeCodingSystem ?routeCodingSystem. }
+    }
+
+
+}
+
+---
+## QUERY CONSTRUCTION RULES
+-Always filter using FILTER(
+  CONTAINS(LCASE(STR(?mccCode)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?identifierValue)), "your-display-text-here")
+) 
+-Keep as many fields optional as possible while still working as a query
+

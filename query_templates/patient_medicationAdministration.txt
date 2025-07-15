@@ -1,0 +1,70 @@
+Convert natural language questions to SPARQL queries for an Ontotext GraphDB containing FHIR resources.  
+The output must include a correctly formatted SPARQL query using the standard prefixes.  
+Do not output any explanatory text outside of the SPARQL query block.
+
+---
+
+## CLASS AND PROPERTIES LIST
+Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
+MedicationAdministration[requestReference, dosageRateQuantitySystem, dosageRateQuantityUnit, dosageRateQuantityValue, dosageRateCode, methodCodingcode, methodCodingsystem, doseSystem, doseText, doseUnit, doseCode, doseValue, effectivePeriodStart, effectivePeriodEnd, subjectReference, contextReference, id, status, codeCodingSystem, codeCodingCode, codeCodingDisplay, categoryCodingSystem, categoryCodingCode, effectiveDateTime]
+
+---
+
+##Example SPARQL QUERY 
+
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX se: <http://example.org/myontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?patientId ?medicationAdministrationId ?codeDisplay ?categoryCode
+WHERE {
+  ?medicationAdministration a fhir:MedicationAdministration .
+  ?medicationAdministration fhir:subjectReference ?patient .
+
+  ?patient a fhir:Patient .
+
+  # Optional Patient fields
+  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
+  OPTIONAL { ?patient fhir:gender ?gender. }
+  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:race ?race. }
+  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+  OPTIONAL { ?patient fhir:managingOrganizationReference ?managingOrganizationReference. }
+  OPTIONAL { ?patient fhir:id ?patientId. }
+  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
+  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+
+  # Optional MedicationAdministration fields
+    OPTIONAL { ?medicationAdministration fhir:requestReference ?requestReference. }
+    OPTIONAL { ?medicationAdministration fhir:dosageRateQuantitySystem ?dosageRateQuantitySystem. }
+    OPTIONAL { ?medicationAdministration fhir:dosageRateQuantityUnit ?dosageRateQuantityUnit. }
+    OPTIONAL { ?medicationAdministration fhir:dosageRateQuantityValue ?dosageRateQuantityValue. }
+    OPTIONAL { ?medicationAdministration fhir:dosageRateCode ?dosageRateCode. }
+    OPTIONAL { ?medicationAdministration fhir:methodCodingcode ?methodCode. }
+    OPTIONAL { ?medicationAdministration fhir:methodCodingsystem ?methodSystem. }
+    OPTIONAL { ?medicationAdministration fhir:doseSystem ?doseSystem. }
+    OPTIONAL { ?medicationAdministration fhir:doseText ?doseText. }
+    OPTIONAL { ?medicationAdministration fhir:doseUnit ?doseUnit. }
+    OPTIONAL { ?medicationAdministration fhir:doseCode ?doseCode. }
+    OPTIONAL { ?medicationAdministration fhir:doseValue ?doseValue. }
+    OPTIONAL { ?medicationAdministration fhir:effectivePeriodStart ?effectivePeriodStart. }
+    OPTIONAL { ?medicationAdministration fhir:effectivePeriodEnd ?effectivePeriodEnd. }
+    OPTIONAL { ?medicationAdministration fhir:subjectReference ?subjectReference. }
+    OPTIONAL { ?medicationAdministration fhir:contextReference ?contextReference. }
+    OPTIONAL { ?medicationAdministration fhir:id ?medicationAdministrationId. }
+    OPTIONAL { ?medicationAdministration fhir:status ?status. }
+    OPTIONAL { ?medicationAdministration fhir:codeCodingSystem ?codeSystem. }
+    OPTIONAL { ?medicationAdministration fhir:codeCodingCode ?codeCode. }
+    OPTIONAL { ?medicationAdministration fhir:codeCodingDisplay ?codeDisplay. }
+    OPTIONAL { ?medicationAdministration fhir:categoryCodingSystem ?categorySystem. }
+    OPTIONAL { ?medicationAdministration fhir:categoryCodingCode ?categoryCode. }
+    OPTIONAL { ?medicationAdministration fhir:effectiveDateTime ?effectiveDateTime. }
+
+}
+
+---
+## QUERY CONSTRUCTION RULES
+-Always filter using FILTER(CONTAINS(LCASE(STR(?codeDisplay)), "your-filter-text"))
+-Keep as many fields optional as possible while still working as a query
+
