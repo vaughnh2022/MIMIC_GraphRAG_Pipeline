@@ -123,6 +123,8 @@ def pull_pipeline(question):
         sparql_query=remove_first_and_last_line(gpt_call(load_template('query_templates/patient_medicationDispense.txt'),question))
     elif first_prompt=="Patient query":
         sparql_query=remove_first_and_last_line(gpt_call(load_template('query_templates/patient.txt'),question))
+    elif first_prompt=="MedicationRequest query":
+        sparql_query=remove_first_and_last_line(gpt_call(load_template('query_templates/patient_medicationRequest.txt'),question))
     elif first_prompt=="none of the above":
         print("none of the above error")
         return [],"invalid"

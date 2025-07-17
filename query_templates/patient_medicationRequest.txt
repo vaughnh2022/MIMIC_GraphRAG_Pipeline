@@ -1,0 +1,82 @@
+Convert natural language questions to SPARQL queries for an Ontotext GraphDB containing FHIR resources.  
+The output must include a correctly formatted SPARQL query using the standard prefixes.  
+Do not output any explanatory text outside of the SPARQL query block.
+
+---
+
+## CLASS AND PROPERTIES LIST
+Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
+MedicationRequest[medicationReference, intent, dispenseRequestValidityPeriodStart, dispenseRequestValidityPeriodEnd, identifierTypeCodingSystem, identifierTypeCodingCode, identifierTypeCodingDisplay, subjectReference, encounterReference, id, identifierSystem, identifierValue, status, mccCodingSystem, mccCodingCode]
+DosageInstruction[doseQuantitySystem, doseQuantityCode, doseQuantityUnit, doseQuantityValue, maxDosePerPeriodDenominatorSystem, maxDosePerPeriodDenominatorUnit, maxDosePerPeriodDenominatorValue, maxDosePerPeriodNumeratorValue, timingCodeCodingSystem, timingCodeCodingCode, timingRepeatDuration, timingRepeatDurationUnit, routeCodingCode, routeCodingSystem]
+
+---
+
+##Example SPARQL QUERY 
+
+PREFIX fhir: <http://hl7.org/fhir/>
+PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX se: <http://example.org/myontology#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+SELECT DISTINCT ?patientId ?medicationRequestId ?mccCodingCode ?codeCodingCode ?identifierValue
+WHERE {
+  ?medicationRequest a fhir:MedicationRequest .
+  ?medicationRequest fhir:subjectReference ?patient .
+
+  ?patient a fhir:Patient .
+
+  # Optional Patient fields
+  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
+  OPTIONAL { ?patient fhir:gender ?gender. }
+  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:race ?race. }
+  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+  OPTIONAL { ?patient fhir:managingOrganizationReference ?managingOrganizationReference. }
+  OPTIONAL { ?patient fhir:id ?patientId. }
+  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
+  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+
+  # Optional MedicationRequest fields
+  OPTIONAL { ?medicationRequest fhir:medicationReference ?medicationReference. }
+  OPTIONAL { ?medicationRequest fhir:intent ?intent. }
+  OPTIONAL { ?medicationRequest fhir:dispenseRequestValidityPeriodStart ?dispenseRequestValidityPeriodStart. }
+  OPTIONAL { ?medicationRequest fhir:dispenseRequestValidityPeriodEnd ?dispenseRequestValidityPeriodEnd. }
+  OPTIONAL { ?medicationRequest fhir:identifierTypeCodingSystem ?identifierTypeCodingSystem. }
+  OPTIONAL { ?medicationRequest fhir:identifierTypeCodingCode ?identifierTypeCodingCode. }
+  OPTIONAL { ?medicationRequest fhir:identifierTypeCodingDisplay ?identifierTypeCodingDisplay. }
+  OPTIONAL { ?medicationRequest fhir:subjectReference ?subjectReference. }
+  OPTIONAL { ?medicationRequest fhir:encounterReference ?encounterReference. }
+  OPTIONAL { ?medicationRequest fhir:id ?medicationRequestId. }
+  OPTIONAL { ?medicationRequest fhir:identifierSystem ?MRidentifierSystem. }
+  OPTIONAL { ?medicationRequest fhir:identifierValue ?MRidentifierValue. }
+  OPTIONAL { ?medicationRequest fhir:status ?status. }
+  OPTIONAL { ?medicationRequest fhir:mccCodingSystem ?mccCodingSystem. }
+  OPTIONAL { ?medicationRequest fhir:mccCodingCode ?mccCode. }
+
+  # Optional dosageInstruction fields
+  OPTIONAL {
+    ?medicationDispense fhir:dosageInstructionReference ?dosageInstruction.
+    ?dosageInstruction a fhir:DosageInstruction .
+    OPTIONAL { ?dosageInstruction fhir:doseQuantitySystem ?doseQuantitySystem. }
+    OPTIONAL { ?dosageInstruction fhir:doseQuantityCode ?doseQuantityCode. }
+    OPTIONAL { ?dosageInstruction fhir:doseQuantityUnit ?doseQuantityUnit. }
+    OPTIONAL { ?dosageInstruction fhir:doseQuantityValue ?doseQuantityValue. }
+    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodDenominatorSystem ?maxDosePerPeriodDenominatorSystem. }
+    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodDenominatorUnit ?maxDosePerPeriodDenominatorUnit. }
+    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodDenominatorValue ?maxDosePerPeriodDenominatorValue. }
+    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodNumeratorValue ?maxDosePerPeriodNumeratorValue. }
+    OPTIONAL { ?dosageInstruction fhir:timingCodeCodingSystem ?timingCodeCodingSystem. }
+    OPTIONAL { ?dosageInstruction fhir:timingCodeCodingCode ?timingCodeCodingCode. }
+    OPTIONAL { ?dosageInstruction fhir:timingRepeatDuration ?timingRepeatDuration. }
+    OPTIONAL { ?dosageInstruction fhir:timingRepeatDurationUnit ?timingRepeatDurationUnit. }
+    OPTIONAL { ?dosageInstruction fhir:routeCodingCode ?routeCodingCode. }
+    OPTIONAL { ?dosageInstruction fhir:routeCodingSystem ?routeCodingSystem. }
+  }
+
+
+}
+
+---
+## QUERY CONSTRUCTION RULES
+-Keep as many fields optional as possible while still working as a query
+
