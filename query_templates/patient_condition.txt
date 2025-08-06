@@ -5,8 +5,8 @@ Do not output any explanatory text outside of the SPARQL query block.
 ---
 
 ## CLASS AND PROPERTIES LIST
-Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
-Condition[subjectReference, encounterReference, id, identifierSystem, identifierValue, codeCodingSystem, codeCodingCode, codeCodingDisplay, categoryCodingSystem, categoryCodingCode]
+Patient[deceased_datetime, gender, age, race, ethnicity, organization_reference, id, identifier]
+Condition[patient_reference, encounter_reference, id, identifier, category_code, icd9_code, icd9_display, icd10_code, icd10_display]
 
 
 ---
@@ -18,38 +18,42 @@ PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX se: <http://example.org/myontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?patientId ?conditionId ?conditionCode ?conditionName ?categoryCode
+SELECT DISTINCT ?patientId ?conditionId ?icd9_display ?icd10_display ?category_code ?icd10_code ?icd9_code
 WHERE {
   ?condition a fhir:Condition .
-  ?condition fhir:subjectReference ?patient .
+  ?condition fhir:patient_reference ?patient .
 
   ?patient a fhir:Patient .
 
   # Optional Patient fields
-  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
-  OPTIONAL { ?patient fhir:gender ?gender. }
-  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
-  OPTIONAL { ?patient fhir:race ?race. }
-  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
-  OPTIONAL { ?patient fhir:managingOrganizationReference ?hospitalReference. }
-  OPTIONAL { ?patient fhir:id ?patientId. }
-  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
-  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+    OPTIONAL { ?patient fhir:deceased_datetime ?deceased_datetime. }
+    OPTIONAL { ?patient fhir:gender ?gender. }
+    OPTIONAL { ?patient fhir:age ?age. }
+    OPTIONAL { ?patient fhir:race ?race. }
+    OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+    OPTIONAL { ?patient fhir:id ?patientId. }
+    OPTIONAL { ?patient fhir:identifier ?patient_identifier. }
+    OPTIONAL { ?patient fhir:organization_reference ?organization. }
 
   # Optional Condition fields
-  OPTIONAL { ?condition fhir:encounterReference ?encounterReference. }
-  OPTIONAL { ?condition fhir:id ?conditionId. }
-  OPTIONAL { ?condition fhir:identifierSystem ?conditionIdentifierSystem. }
-  OPTIONAL { ?condition fhir:identifierValue ?conditionIdentifierValue. }
-  OPTIONAL { ?condition fhir:codeCodingSystem ?conditionSystem. }
-  OPTIONAL { ?condition fhir:codeCodingCode ?conditionCode. }
-  OPTIONAL { ?condition fhir:codeCodingDisplay ?conditionDisplay. }
-  OPTIONAL { ?condition fhir:categoryCodingSystem ?categorySystem. }
-  OPTIONAL { ?condition fhir:categoryCodingCode ?categoryCode. }
+    OPTIONAL { ?condition fhir:encounter_reference ?encounter. }
+    OPTIONAL { ?condition fhir:id ?conditionId. }
+    OPTIONAL { ?condition fhir:identifier ?conditionIdentifier. }
+    OPTIONAL { ?procedure fhir:icd9_code ?icd9_code. }
+    OPTIONAL { ?procedure fhir:icd9_display ?icd9_display. }
+    OPTIONAL { ?procedure fhir:icd10_code ?icd10_code. }
+    OPTIONAL { ?procedure fhir:icd10_display ?icd10_display. }
+    OPTIONAL { ?procedure fhir:category_code ?category_code. }
 }
 
 ---
 ## QUERY CONSTRUCTION RULES
--Always filter using FILTER(CONTAINS(LCASE(STR(?conditionDisplay)), "your-filter-text")) 
+-Always filter using FILTER(
+  CONTAINS(LCASE(STR(?icd10_display)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?icd9_display)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?d_items_display)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?category_code)), "your-display-text-here")
+) 
 -Keep as many fields optional as possible while still working as a query
+-Always use GROUP BY when using average or count queries
 

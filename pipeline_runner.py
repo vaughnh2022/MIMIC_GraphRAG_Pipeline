@@ -6,6 +6,7 @@ import time
 from dotenv import load_dotenv
 import os
 import json
+import datetime
 
 #loads env file holding sensitive information like api keys and passwords
 load_dotenv()
@@ -98,6 +99,11 @@ def pull_pipeline(question):
         data : csv ouput from querying the database
         sparql_query : string holding the sparql query that was passed through the database
     """
+    if question=="test":
+        with open('test.csv', newline='', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            data = list(reader)
+        return data, "test query"
     first_prompt=gpt_call(load_template('first_prompt.txt'),question)
     print("template selected is: ",first_prompt)
     sparql_query=""
@@ -137,6 +143,7 @@ def pull_pipeline(question):
     with open('query-result.csv', newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
         data = list(reader)
+    add_to_log(question,sparql_query,"gui")
     return data,sparql_query
 
 def update_query(query):
@@ -153,3 +160,22 @@ def update_query(query):
         data = list(reader)
     return data,query
 
+def query_log(entry):
+    query_database(entry['query'])
+    with open('query-result.csv', newline='', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        data = list(reader)
+    return data,entry['query']
+
+def add_to_log(question,query,method):
+    new_entry = {
+        "question": question,
+        "query": query,
+        "timestamp": datetime.datetime.now().isoformat(),
+        "method":method
+    }
+    with open('static/log.json', "r") as f:
+            data = json.load(f)
+    data.append(new_entry)
+    with open('static/log.json', "w") as f:
+        json.dump(data, f, indent=4)

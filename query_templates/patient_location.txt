@@ -5,9 +5,9 @@ Do not output any explanatory text outside of the SPARQL query block.
 ---
 
 ## CLASS AND PROPERTIES LIST
-Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
-LocationEncounter[locationReference,periodStart,periodEnd,subjectReference]
-Location[managingOrganizationReference,name,id,typeCodingSystem,typeCodingCode,typeCodingDisplay,status]
+Patient[deceased_datetime, gender, age, race, ethnicity, organization_reference, id, identifier]
+LocationEncounter[location_reference,period_start,period_end,patient_reference]
+Location[organization_reference,name,id,location_physical_type_code,location_physical_type_display,status]
 
 ---
 
@@ -22,33 +22,31 @@ SELECT DISTINCT ?patientId ?locationId ?name
 WHERE {
 
   ?locationEncounter a fhir:LocationEncounter .
-  ?locationEncounter fhir:subjectReference ?patient .
-  ?locationEncounter fhir:locationReference ?location .
+  ?locationEncounter fhir:patient_reference ?patient .
+  ?locationEncounter fhir:location_reference ?location .
   ?location a fhir:Location .
   ?patient a fhir:Patient .
 
   # Optional Patient fields
-  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
-  OPTIONAL { ?patient fhir:gender ?gender. }
-  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
-  OPTIONAL { ?patient fhir:race ?race. }
-  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
-  OPTIONAL { ?patient fhir:managingOrganizationReference ?hospitalReference. }
-  OPTIONAL { ?patient fhir:id ?patientId. }
-  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
-  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+    OPTIONAL { ?patient fhir:deceased_datetime ?deceased_datetime. }
+    OPTIONAL { ?patient fhir:gender ?gender. }
+    OPTIONAL { ?patient fhir:age ?age. }
+    OPTIONAL { ?patient fhir:race ?race. }
+    OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+    OPTIONAL { ?patient fhir:id ?patientId. }
+    OPTIONAL { ?patient fhir:identifier ?patient_identifier. }
+    OPTIONAL { ?patient fhir:organization_reference ?organization. }
 
   # Optional LocationEncounter fields
-  OPTIONAL { ?locationEncounter fhir:periodStart ?periodStart. }
-  OPTIONAL { ?locationEncounter fhir:periodEnd ?periodEnd. }
+    OPTIONAL { ?locationEncounter fhir:period_start ?period_start. }
+    OPTIONAL { ?locationEncounter fhir:period_end ?period_end. }
 
     # Optional Location fields
-    OPTIONAL { ?location fhir:managingOrganizationReference ?hospitalReference. }
+    OPTIONAL { ?location fhir:organization_reference ?organization_reference. }
     OPTIONAL { ?location fhir:name ?name. }
     OPTIONAL { ?location fhir:id ?locationId. }
-    OPTIONAL { ?location fhir:typeCodingSystem ?typeSystem. }
-    OPTIONAL { ?location fhir:typeCodingCode ?typeCode. }
-    OPTIONAL { ?location fhir:typeCodingDisplay ?typeDisplay. }
+    OPTIONAL { ?location fhir:location_physical_type_display ?type_display. }
+    OPTIONAL { ?location fhir:location_physical_type_code ?type_code. }
     OPTIONAL { ?location fhir:status ?status. }
 
 }
@@ -57,5 +55,5 @@ WHERE {
 ## QUERY CONSTRUCTION RULES
 -Always filter using FILTER(CONTAINS(LCASE(STR(?name)), "your-filter-text")) 
 -Keep as many fields optional as possible while still working as a query
--all queries that use count must have a group by
+-Always use GROUP BY when using average or count queries
 

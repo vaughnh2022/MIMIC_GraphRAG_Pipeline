@@ -5,8 +5,8 @@ Do not output any explanatory text outside of the SPARQL query block.
 ---
 
 ## CLASS AND PROPERTIES LIST
-Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
-Organization[active, name, id, typeCodingSystem, typeCodingCode, typeCodingDisplay, identifierSystem, identifierValue]
+Patient[deceased_datetime, gender, age, race, ethnicity, organization_reference, id, identifier]
+Organization[active, name, id, organization_type_code, organization_type_display, identifier]
 
 ---
 
@@ -17,33 +17,29 @@ PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX se: <http://example.org/myontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?patientId ?name ?typeDisplay
+SELECT DISTINCT ?patientId ?name ?organization_type_display
 WHERE {
   ?patient a fhir:Patient .
-  ?patient fhir:managinOrganization ?organization .
+  ?patient fhir:organization_reference ?organization .
 
   ?organization a fhir:Organization .
 
   # Optional Patient fields
-  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
+  OPTIONAL { ?patient fhir:deceased_datetime ?deceased_datetime. }
   OPTIONAL { ?patient fhir:gender ?gender. }
-  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:age ?age. }
   OPTIONAL { ?patient fhir:race ?race. }
   OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
-  OPTIONAL { ?patient fhir:managingOrganizationReference ?managingOrganizationReference. }
   OPTIONAL { ?patient fhir:id ?patientId. }
-  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
-  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+  OPTIONAL { ?patient fhir:identifier ?patient_identifier. }
 
   # Optional Organization fields
   OPTIONAL { ?organization fhir:active ?active. }
   OPTIONAL { ?organization fhir:name ?name. }
   OPTIONAL { ?organization fhir:id ?organizationId. }
-  OPTIONAL { ?organization fhir:typeCodingSystem ?typeSystem. }
-  OPTIONAL { ?organization fhir:typeCodingCode ?typeCode. }
-  OPTIONAL { ?organization fhir:typeCodingDisplay ?typeDisplay. }
-  OPTIONAL { ?organization fhir:identifierSystem ?identifierSystem. }
-  OPTIONAL { ?organization fhir:identifierValue ?identifierValue. }
+  OPTIONAL { ?organization fhir:organization_type_code ?organization_type_code. }
+  OPTIONAL { ?organization fhir:organization_type_display ?organization_type_display. }
+  OPTIONAL { ?organization fhir:identifier ?organization_identifier. }
 
 }
 
@@ -51,4 +47,5 @@ WHERE {
 ## QUERY CONSTRUCTION RULES
 -Always filter using FILTER(CONTAINS(LCASE(STR(?name)), "your-filter-text")) 
 -Keep as many fields optional as possible while still working as a query
+-Always use GROUP BY when using average or count queries
 

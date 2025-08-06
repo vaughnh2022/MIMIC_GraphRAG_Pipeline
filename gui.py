@@ -6,7 +6,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_session import Session  
 import pandas as pd
-from pipeline_runner import pull_pipeline, update_query  
+from pipeline_runner import pull_pipeline, update_query, query_log
+import json
 
 #set up app
 app = Flask(__name__)
@@ -40,6 +41,29 @@ def process():
         return redirect(url_for('results'))
     return redirect(url_for('index'))
 
+@app.route('/log/<path:timestamp>')
+def show_log(timestamp):
+    try:
+        with open("static/log.json") as f:
+            logs = json.load(f)
+
+        # Find log entry with matching timestamp
+        entry = next((log for log in logs if log["timestamp"] == timestamp), None)
+
+        if not entry:
+            return f"No log found with timestamp: {timestamp}", 404
+        csv_data,sparql_text=query_log(entry)
+        session['csv_data'] = csv_data
+        session['sparql_text']=sparql_text
+        
+        return redirect(url_for('results'))
+    except Exception as e:
+        return f"Error loading log: {str(e)}", 500
+
+@app.route('/logs')
+def question_logs():
+    return render_template('log.html')
+
 #gets returned results from process and outputs them in results.html
 @app.route('/results')
 def results():
@@ -56,6 +80,7 @@ def execute_query():
     updated_data,updated_query=update_query(sparql_query)
 
     return render_template('results.html', csv_data=updated_data,sparql_text=updated_query)
+
 
 #runs flask server
 if __name__ == '__main__':

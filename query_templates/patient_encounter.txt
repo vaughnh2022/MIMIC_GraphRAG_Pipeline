@@ -5,9 +5,10 @@ Do not output any explanatory text outside of the SPARQL query block.
 ---
 
 ## CLASS AND PROPERTIES LIST
-Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
-Encounter[performedDateTime,partOfReference,serviceProviderReference,assignerReference,classCode,classSystem,serviceTypeCodingSystem,priorityCodingValue,priorityCodingSystem,identifierUse,admitSourceCode,admitSourceSystem,dischargeSourceCode,dischargeSourceSystem,locationEncounterReference,subjectReference,id,typeCodingSystem,typeCodingCode,typeCodingDisplay,identifierSystem,identifierValue,status,periodStart,periodEnd,serviceTypeCodingCode]
-LocationEncounter[locationReference,periodStart,periodEnd]
+Patient[deceased_datetime, gender, age, race, ethnicity, organization_reference, id, identifier]
+LocationEncounter[location_reference,period_start,period_end,patient_reference]
+Encounter[patient_reference,encounter_reference, organization_reference, admission_class_code, services_code, admission_type, identifier_use, admit_source_code, discharge_disposition_code, id, identifier, status, period_start, period_end, snomed_display, snomed_code, hcpcs_display, hcpcs_code]
+
 
 
 ---
@@ -19,63 +20,55 @@ PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX se: <http://example.org/myontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?patientId ?encounterId ?typeCode ?typeDisplay ?encounterPeriodStart ?encounterPeriodEnd
+SELECT DISTINCT ?patientId ?encounterId ?encounter_period_start ?encounter_period_end ?snomed_display ?hcpcs_display
 WHERE {
   ?encounter a fhir:Encounter .
-  ?encounter fhir:subjectReference ?patient .
+  ?encounter fhir:patinet_reference ?patient .
   
   ?patient a fhir:Patient .
 
   # Optional Patient fields
-  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
-  OPTIONAL { ?patient fhir:gender ?gender. }
-  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
-  OPTIONAL { ?patient fhir:race ?race. }
-  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
-  OPTIONAL { ?patient fhir:managingOrganizationReference ?hospitalReference. }
-  OPTIONAL { ?patient fhir:id ?patientId. }
-  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
-  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+    OPTIONAL { ?patient fhir:deceased_datetime ?deceased_datetime. }
+    OPTIONAL { ?patient fhir:gender ?gender. }
+    OPTIONAL { ?patient fhir:age ?age. }
+    OPTIONAL { ?patient fhir:race ?race. }
+    OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+    OPTIONAL { ?patient fhir:id ?patientId. }
+    OPTIONAL { ?patient fhir:identifier ?patient_identifier. }
+    OPTIONAL { ?patient fhir:organization_reference ?organization. }
 
   #optional LocationEncounter fields
   OPTIONAL {
-    ?encounter fhir:locationEncounterReference ?locationEncounter .
+    ?encounter fhir:locationEncounter_reference ?locationEncounter .
     ?locationEncounter a fhir:LocationEncounter .
 
     # Optional LocationEncounter fields
-    OPTIONAL { ?locationEncounter fhir:periodStart ?locationPeriodStart. }
-    OPTIONAL { ?locationEncounter fhir:periodEnd ?locationPeriodEnd. }
-    OPTIONAL { ?locationEncounter fhir:subjectReference ?patient . }
+    OPTIONAL { ?locationEncounter fhir:period_start ?location_period_start. }
+    OPTIONAL { ?locationEncounter fhir:period_end ?location_period_end. }
+    OPTIONAL { ?locationEncounter fhir:patient_reference ?patient . }
   }
 
   # Optional Encounter fields
-  OPTIONAL { ?encounter fhir:performedDateTime ?performedDateTime. }
-  OPTIONAL { ?encounter fhir:partOfReference ?partOfReference. }
-  OPTIONAL { ?encounter fhir:serviceProviderReference ?serviceProviderReference. }
-  OPTIONAL { ?encounter fhir:assignerReference ?assignerReference. }
-  OPTIONAL { ?encounter fhir:classCode ?classCode. }
-  OPTIONAL { ?encounter fhir:classSystem ?classSystem. }
-  OPTIONAL { ?encounter fhir:serviceTypeCodingSystem ?serviceTypeSystem. }
-  OPTIONAL { ?encounter fhir:priorityCodingValue ?priorityValue. }
-  OPTIONAL { ?encounter fhir:priorityCodingSystem ?prioritySystem. }
-  OPTIONAL { ?encounter fhir:identifierUse ?identifierUse. }
-  OPTIONAL { ?encounter fhir:admitSourceCode ?admitSourceCode. }
-  OPTIONAL { ?encounter fhir:admitSourceSystem ?admitSourceSystem. }
-  OPTIONAL { ?encounter fhir:dischargeSourceCode ?dischargeSourceCode. }
-  OPTIONAL { ?encounter fhir:dischargeSourceSystem ?dischargeSourceSystem. }
+  OPTIONAL { ?encounter fhir:encounter_reference ?encounter_reference. }
+  OPTIONAL { ?encounter fhir:organization_reference ?organization. }
+  OPTIONAL { ?encounter fhir:admission_class_code ?class_code. }
+  OPTIONAL { ?encounter fhir:services_code ?services_code. }
+  OPTIONAL { ?encounter fhir:admission_type ?addmision_type. }
+  OPTIONAL { ?encounter fhir:identifier_use ?identifier_use. }
+  OPTIONAL { ?encounter fhir:admit_source_code ?admitSourceCode. }
+  OPTIONAL { ?encounter fhir:discharge_disposition_code ?discharge_disposition_code. }
   OPTIONAL { ?encounter fhir:id ?encounterId. }
-  OPTIONAL { ?encounter fhir:typeCodingSystem ?typeSystem. }
-  OPTIONAL { ?encounter fhir:typeCodingCode ?typeCode. }
-  OPTIONAL { ?encounter fhir:typeCodingDisplay ?typeDisplay. }
-  OPTIONAL { ?encounter fhir:identifierSystem ?identifierSystem. }
-  OPTIONAL { ?encounter fhir:identifierValue ?identifierValue. }
+  OPTIONAL { ?encounter fhir:identifier ?identifier. }
   OPTIONAL { ?encounter fhir:status ?status. }
-  OPTIONAL { ?encounter fhir:periodStart ?encounterPeriodStart. }
-  OPTIONAL { ?encounter fhir:periodEnd ?encounterPeriodEnd. }
-  OPTIONAL { ?encounter fhir:serviceTypeCodingCode ?serviceTypeCode. }
+  OPTIONAL { ?encounter fhir:period_start ?encounter_period_start. }
+  OPTIONAL { ?encounter fhir:period_end ?encounter_period_end. }
+  OPTIONAL { ?encounter fhir:snomed_display ?snomed_display. }
+  OPTIONAL { ?encounter fhir:snomed_code ?snomed_code. }
+  OPTIONAL { ?encounter fhir:hcpcs_display ?hcpcs_display. }
+  OPTIONAL { ?encounter fhir:hcpcs_code ?hcpcs_code. }
 }
 
 ---
 ## QUERY CONSTRUCTION RULES
 -Keep as many fields optional as possible while still working as a query
-
+-Always use GROUP BY when using average or count queries

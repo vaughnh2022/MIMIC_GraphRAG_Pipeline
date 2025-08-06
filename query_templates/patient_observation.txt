@@ -5,9 +5,8 @@ Do not output any explanatory text outside of the SPARQL query block.
 ---
 
 ## CLASS AND PROPERTIES LIST
-Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
-Observation[valueString, issued, valueDateTime, hasMemberReference, derivedFromReference, extensionUrl, extensionValueQuantityComparator, extensionValueQuantityValue, extensionValueString, interpretationCodingSystem, interpretationCodingCode, noteText, rrHighSystem, rrLowSystem, rrHighUnit, rrHighValue, rrHighCode, rrLowUnit, rrLowValue, rrLowCode, vccCodingSystem, vccCodingCode, valueQuantitySystem, valueQuantityValue, valueQuantityComparator, valueQuantityCode, subjectReference, encounterReference, id, identifierSystem, identifierValue, status, codeCodingSystem, codeCodingCode, codeCodingDisplay, categoryCodingSystem, categoryCodingCode, effectiveDateTime]
-
+Patient[deceased_datetime, gender, age, race, ethnicity, organization_reference, id, identifier]
+Observation[issued, organization_type_code, organization_type_display, hasMember_reference, derivedFrom_reference, value_datetime, value_string, d_labitems_code, d_labitems_display, microbiology_test_code, microbiology_test_display, microbiology_antibiotic_code, microbiology_antibiotic_display, microbiology_organism_code, microbiology_organism_display, lab_priority_value_string, dilution_details_comparator, dilution_details_value, lab_flags, note_text, referenceRange_high_unit, referenceRange_high_value, referenceRange_high_code, referenceRange_low_unit, referenceRange_low_value, referenceRange_low_code, microbiology_interpretation_code, valueQuantity_value, valueQuantity_comparator, valueQuantity_code, encounter_reference, patient_reference, id, identifier, status, d_items_code, d_items_display, category_code, effective_datetime]
 ---
 
 ##Example SPARQL QUERY 
@@ -17,71 +16,68 @@ PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX se: <http://example.org/myontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?patientId ?observationId ?typeCode ?typeDisplay ?collectedDateTime ?identifierValue
+SELECT DISTINCT ?patientId ?observationId ?effective_datetime
 WHERE {
   ?observation a fhir:Observation .
-  ?observation fhir:subjectReference ?patient .
+  ?observation fhir:patient_reference ?patient .
 
   ?patient a fhir:Patient .
 
   # Optional Patient fields
-  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
-  OPTIONAL { ?patient fhir:gender ?gender. }
-  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
-  OPTIONAL { ?patient fhir:race ?race. }
-  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
-  OPTIONAL { ?patient fhir:managingOrganizationReference ?hospitalReference. }
-  OPTIONAL { ?patient fhir:id ?patientId. }
-  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
-  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+    OPTIONAL { ?patient fhir:deceased_datetime ?deceased_datetime. }
+    OPTIONAL { ?patient fhir:gender ?gender. }
+    OPTIONAL { ?patient fhir:age ?age. }
+    OPTIONAL { ?patient fhir:race ?race. }
+    OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+    OPTIONAL { ?patient fhir:id ?patientId. }
+    OPTIONAL { ?patient fhir:identifier ?patient_identifier. }
+    OPTIONAL { ?patient fhir:organization_reference ?organization. }
 
-  # Optional Observation fields
-    OPTIONAL { ?observation fhir:valueString ?valueString. }
+    # Optional Observation Fields
     OPTIONAL { ?observation fhir:issued ?issued. }
-    OPTIONAL { ?observation fhir:valueDateTime ?valueDateTime. }
-    OPTIONAL { ?observation fhir:hasMemberReference ?hasMemberReference. }
-    OPTIONAL { ?observation fhir:derivedFromReference ?derivedFromReference. }
-    OPTIONAL { ?observation fhir:extensionUrl ?extensionUrl. }
-    OPTIONAL { ?observation fhir:extensionValueQuantityComparator ?extensionValueQuantityComparator. }
-    OPTIONAL { ?observation fhir:extensionValueQuantityValue ?extensionValueQuantityValue. }
-    OPTIONAL { ?observation fhir:extensionValueString ?extensionValueString. }
-    OPTIONAL { ?observation fhir:interpretationCodingSystem ?interpretationCodingSystem. }
-    OPTIONAL { ?observation fhir:interpretationCodingCode ?interpretationCodingCode. }
-    OPTIONAL { ?observation fhir:noteText ?noteText. }
-    OPTIONAL { ?observation fhir:rrHighSystem ?rrHighSystem. }
-    OPTIONAL { ?observation fhir:rrLowSystem ?rrLowSystem. }
-    OPTIONAL { ?observation fhir:rrHighUnit ?rrHighUnit. }
-    OPTIONAL { ?observation fhir:rrHighValue ?rrHighValue. }
-    OPTIONAL { ?observation fhir:rrHighCode ?rrHighCode. }
-    OPTIONAL { ?observation fhir:rrLowUnit ?rrLowUnit. }
-    OPTIONAL { ?observation fhir:rrLowValue ?rrLowValue. }
-    OPTIONAL { ?observation fhir:rrLowCode ?rrLowCode. }
-    OPTIONAL { ?observation fhir:vccCodingSystem ?vccSystem. }
-    OPTIONAL { ?observation fhir:vccCodingCode ?vccCode. }
-    OPTIONAL { ?observation fhir:valueQuantitySystem ?valueQuantitySystem. }
-    OPTIONAL { ?observation fhir:valueQuantityValue ?valueQuantityValue. }
-    OPTIONAL { ?observation fhir:valueQuantityComparator ?valueQuantityComparator. }
-    OPTIONAL { ?observation fhir:valueQuantityCode ?valueQuantityCode. }
-    OPTIONAL { ?observation fhir:subjectReference ?subjectReference. }
-    OPTIONAL { ?observation fhir:encounterReference ?encounterReference. }
-    OPTIONAL { ?observation fhir:id ?observationId. }
-    OPTIONAL { ?observation fhir:identifierSystem ?identifierSystem. }
-    OPTIONAL { ?observation fhir:identifierValue ?identifierValue. }
+    OPTIONAL { ?observation fhir:organization_type_code ?organization_type_code. }
+    OPTIONAL { ?observation fhir:organization_type_display ?organization_type_display. }
+    OPTIONAL { ?observation fhir:hasMember_reference ?hasMember_reference. }
+    OPTIONAL { ?observation fhir:derivedFrom_reference ?derivedFrom_reference. }
+    OPTIONAL { ?observation fhir:value_datetime ?value_datetime. }
+    OPTIONAL { ?observation fhir:value_string ?value_string. }
+    OPTIONAL { ?observation fhir:d_labitems_code ?d_labitems_code. }
+    OPTIONAL { ?observation fhir:d_labitems_display ?d_labitems_display. }
+    OPTIONAL { ?observation fhir:microbiology_test_code ?microbiology_test_code. }
+    OPTIONAL { ?observation fhir:microbiology_test_display ?microbiology_test_display. }
+    OPTIONAL { ?observation fhir:microbiology_antibiotic_code ?microbiology_antibiotic_code. }
+    OPTIONAL { ?observation fhir:microbiology_antibiotic_display ?microbiology_antibiotic_display. }
+    OPTIONAL { ?observation fhir:microbiology_organism_code ?microbiology_organism_code. }
+    OPTIONAL { ?observation fhir:microbiology_organism_display ?microbiology_organism_display. }
+    OPTIONAL { ?observation fhir:lab_priority_value_string ?lab_priority_value_string. }
+    OPTIONAL { ?observation fhir:dilution_details_comparator ?dilution_details_comparator. }
+    OPTIONAL { ?observation fhir:dilution_details_value ?dilution_details_value. }
+    OPTIONAL { ?observation fhir:lab_flags ?lab_flags. }
+    OPTIONAL { ?observation fhir:note_text ?note_text. }
+    OPTIONAL { ?observation fhir:referenceRange_high_unit ?referenceRange_high_unit. }
+    OPTIONAL { ?observation fhir:referenceRange_high_value ?referenceRange_high_value. }
+    OPTIONAL { ?observation fhir:referenceRange_high_code ?referenceRange_high_code. }
+    OPTIONAL { ?observation fhir:referenceRange_low_unit ?referenceRange_low_unit. }
+    OPTIONAL { ?observation fhir:referenceRange_low_value ?referenceRange_low_value. }
+    OPTIONAL { ?observation fhir:referenceRange_low_code ?referenceRange_low_code. }
+    OPTIONAL { ?observation fhir:microbiology_interpretation_code ?microbiology_interpretation_code. }
+    OPTIONAL { ?observation fhir:valueQuantity_value ?valueQuantity_value. }
+    OPTIONAL { ?observation fhir:valueQuantity_comparator ?valueQuantity_comparator. }
+    OPTIONAL { ?observation fhir:valueQuantity_code ?valueQuantity_code. }
+    OPTIONAL { ?observation fhir:encounter_reference ?encounter_reference. }
+    OPTIONAL { ?observation fhir:id ?oberservationId. }
+    OPTIONAL { ?observation fhir:identifier ?observationIdentifier. }
     OPTIONAL { ?observation fhir:status ?status. }
-    OPTIONAL { ?observation fhir:codeCodingSystem ?codeSystem. }
-    OPTIONAL { ?observation fhir:codeCodingCode ?codeCode. }
-    OPTIONAL { ?observation fhir:codeCodingDisplay ?codeDisplay. }
-    OPTIONAL { ?observation fhir:categoryCodingSystem ?categorySystem. }
-    OPTIONAL { ?observation fhir:categoryCodingCode ?categoryCode. }
-    OPTIONAL { ?observation fhir:effectiveDateTime ?effectiveDateTime. }
+    OPTIONAL { ?observation fhir:d_items_code ?d_items_code. }
+    OPTIONAL { ?observation fhir:d_items_display ?d_items_display. }
+    OPTIONAL { ?observation fhir:category_code ?category_code. }
+    OPTIONAL { ?observation fhir:effective_datetime ?effective_datetime. }
+
 
 }
 
 ---
 ## QUERY CONSTRUCTION RULES
--Always filter using FILTER(
-  CONTAINS(LCASE(STR(?codeDisplay)), "your-display-text-here") ||
-  CONTAINS(LCASE(STR(?categoryCode)), "your-display-text-here")
-) 
 -Keep as many fields optional as possible while still working as a query
+-Always use GROUP BY when using average or count queries
 

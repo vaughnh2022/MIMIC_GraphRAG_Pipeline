@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fetch Test</title>
+</head>
+<body>
+  <h2>Log Fetch Test</h2>
+  <pre id="output">Loading...</pre>
+
+  <script>
+    fetch('../log.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(error => {
+        document.getElementById('output').textContent = 'Error loading log.json: ' + error;
+        console.error('Fetch error:', error);
+      });
+  </script>
+</body>
+</html>

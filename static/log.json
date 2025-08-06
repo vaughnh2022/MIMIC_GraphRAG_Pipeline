@@ -1,0 +1,38 @@
+[
+    {
+        "question": "give me a list of all conditions diagnosed for patient ece255e8-656b-5e09-8da9-33f88bc270a1",
+        "query": "PREFIX fhir: <http://hl7.org/fhir/>\nPREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX se: <http://example.org/myontology#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nSELECT DISTINCT ?conditionId ?icd9_display ?icd10_display ?category_code ?icd10_code ?icd9_code\nWHERE {\n  ?condition a fhir:Condition .\n  ?condition fhir:patient_reference ?patient .\n  ?patient fhir:id \"ece255e8-656b-5e09-8da9-33f88bc270a1\" .\n\n  # Optional Condition fields\n    OPTIONAL { ?condition fhir:id ?conditionId. }\n    OPTIONAL { ?condition fhir:identifier ?conditionIdentifier. }\n    OPTIONAL { ?condition fhir:icd9_code ?icd9_code. }\n    OPTIONAL { ?condition fhir:icd9_display ?icd9_display. }\n    OPTIONAL { ?condition fhir:icd10_code ?icd10_code. }\n    OPTIONAL { ?condition fhir:icd10_display ?icd10_display. }\n    OPTIONAL { ?condition fhir:category_code ?category_code. }\n}",
+        "timestamp": "2025-07-23T11:18:51.985450",
+        "method": "gui"
+    },
+    {
+        "question": "give me a count of all encounters for male patients ",
+        "query": "PREFIX fhir: <http://hl7.org/fhir/>\nPREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX se: <http://example.org/myontology#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nSELECT (COUNT(DISTINCT ?encounter) AS ?maleEncounterCount)\nWHERE {\n  ?encounter a fhir:Encounter .\n  ?encounter fhir:patient_reference ?patient .\n  \n  ?patient a fhir:Patient .\n  ?patient fhir:gender \"male\" .\n}",
+        "timestamp": "2025-07-23T11:19:53.764815",
+        "method": "gui"
+    },
+    {
+        "question": "give me the average age for patients",
+        "query": "PREFIX fhir: <http://hl7.org/fhir/>\nPREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX se: <http://example.org/myontology#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nSELECT (AVG(?age) AS ?averageAge)\nWHERE {\n  ?patient a fhir:Patient .\n  OPTIONAL { ?patient fhir:age ?age. }\n}",
+        "timestamp": "2025-07-23T11:20:29.546139",
+        "method": "gui"
+    },
+    {
+        "question": "give me all locations and a count of how many patients have visited each location",
+        "query": "PREFIX fhir: <http://hl7.org/fhir/>\nPREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX se: <http://example.org/myontology#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nSELECT ?name (COUNT(DISTINCT ?patient) AS ?patientCount)\nWHERE {\n  ?locationEncounter a fhir:LocationEncounter .\n  ?locationEncounter fhir:patient_reference ?patient .\n  ?locationEncounter fhir:location_reference ?location .\n  ?location a fhir:Location .\n\n  # Optional Location fields\n  OPTIONAL { ?location fhir:name ?name. }\n  OPTIONAL { ?location fhir:organization_reference ?organization_reference. }\n  OPTIONAL { ?location fhir:id ?locationId. }\n  OPTIONAL { ?location fhir:location_physical_type_display ?type_display. }\n  OPTIONAL { ?location fhir:location_physical_type_code ?type_code. }\n  OPTIONAL { ?location fhir:status ?status. }\n\n}\n\nGROUP BY ?name",
+        "timestamp": "2025-07-23T11:21:09.192333",
+        "method": "gui"
+    },
+    {
+        "question": "return all specimen tests for patient d378a59b-aa80-5bc5-812a-7d59b26e7df4",
+        "query": "PREFIX fhir: <http://hl7.org/fhir/>\nPREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX se: <http://example.org/myontology#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nSELECT DISTINCT ?specimenId ?collected_datetime ?spec_type_desc_display\nWHERE {\n  ?specimen a fhir:Specimen .\n  ?specimen fhir:patient_reference ?patient .\n\n  ?patient a fhir:Patient .\n  ?patient fhir:id \"d378a59b-aa80-5bc5-812a-7d59b26e7df4\" .\n\n  # Optional Specimen Fields\n  OPTIONAL { ?specimen fhir:lab_fluid_code ?lab_fluid_code. }\n  OPTIONAL { ?specimen fhir:spec_type_desc_code ?spec_type_desc_code. }\n  OPTIONAL { ?specimen fhir:spec_type_desc_display ?spec_type_desc_display. }\n  OPTIONAL { ?specimen fhir:collected_datetime ?collected_datetime. }\n  OPTIONAL { ?specimen fhir:id ?specimenId. }\n  OPTIONAL { ?specimen fhir:identifier ?identifier. }\n}",
+        "timestamp": "2025-07-24T15:34:51.786085",
+        "method": "gui"
+    },
+    {
+        "question": "What was the condition upon discharge of the patient with identifier 10000032",
+        "query": "PREFIX fhir: <http://hl7.org/fhir/>\nPREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX se: <http://example.org/myontology#>\nPREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n\nSELECT DISTINCT ?conditionId ?icd9_display ?icd10_display ?category_code ?icd10_code ?icd9_code\nWHERE {\n  ?condition a fhir:Condition .\n  ?condition fhir:patient_reference ?patient .\n  ?patient a fhir:Patient .\n  ?patient fhir:identifier \"10000032\" .\n\n  # Optional fields for Condition\n  OPTIONAL { ?condition fhir:encounter_reference ?encounter. }\n  OPTIONAL { ?condition fhir:id ?conditionId. }\n  OPTIONAL { ?condition fhir:identifier ?conditionIdentifier. }\n  OPTIONAL { ?condition fhir:icd9_code ?icd9_code. }\n  OPTIONAL { ?condition fhir:icd9_display ?icd9_display. }\n  OPTIONAL { ?condition fhir:icd10_code ?icd10_code. }\n  OPTIONAL { ?condition fhir:icd10_display ?icd10_display. }\n  OPTIONAL { ?condition fhir:category_code ?category_code. }\n}",
+        "timestamp": "2025-07-29T15:55:28.428830",
+        "method": "gui"
+    }
+]

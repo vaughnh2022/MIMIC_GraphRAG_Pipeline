@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text File Logger</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 2px solid #e8f5e8;
+        }
+
+        .header {
+            position: relative;
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        
+        .back-btn {
+            position: absolute;
+            left: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+
+
+        .log-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px 25px;
+            background: white;
+        }
+
+        .log-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .log-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .log-container::-webkit-scrollbar-thumb {
+            background: #4caf50;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+
+        .log-container::-webkit-scrollbar-thumb:hover {
+            background: #45a049;
+        }
+
+        .log-entry {
+            background: white;
+            border: 1px solid #e8f5e8;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .log-entry:hover {
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.1);
+            transform: translateY(-2px);
+            border-color: #4caf50;
+        }
+
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .log-timestamp {
+            background: #4caf50;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .log-method {
+            background: #007bff;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .log-question {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .log-query {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #495057;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .log-query-toggle {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .log-query-toggle:hover {
+            background: #5a6268;
+        }
+
+        .log-query.collapsed {
+            display: none;
+        }
+
+        .no-logs {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-size: 16px;
+        }
+
+        .status {
+            padding: 10px 25px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .folder-input {
+                min-width: unset;
+            }
+
+            .log-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="/" class="back-btn"> Back to Home</a>
+            <div class="title">Text File Logger</div>
+        </div>
+        
+
+        
+        <div class="log-container" id="logContainer">
+            <div class="no-logs">Loading logs...</div>
+        </div>
+        
+        <div class="status" id="status">
+            Ready to load logs
+        </div>
+    </div>
+
+    <script>
+        let logData = [];
+
+        async function loadLogs() {
+            const container = document.getElementById('logContainer');
+            const status = document.getElementById('status');
+            
+            try {
+                status.textContent = 'Loading logs...';
+                container.innerHTML = '<div class="no-logs">Loading logs...</div>';
+                
+                const response = await fetch('static/log.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                logData = await response.json();
+                displayLogs();
+                status.textContent = `Loaded ${logData.length} log entries`;
+                
+            } catch (error) {
+                console.error('Error loading logs:', error);
+                container.innerHTML = `<div class="error">Error loading logs: ${error.message}</div>`;
+                status.textContent = 'Error loading logs';
+            }
+        }
+
+        function displayLogs() {
+            const container = document.getElementById('logContainer');
+
+            if (!logData || logData.length === 0) {
+                container.innerHTML = '<div class="no-logs">No log entries found</div>';
+                return;
+            }
+
+            // Sort logs by timestamp (newest first)
+            const sortedLogs = [...logData].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            const logHTML = sortedLogs.map((entry, index) => {
+                const timestamp = new Date(entry.timestamp).toLocaleString();
+                const encodedTimestamp = encodeURIComponent(entry.timestamp);
+
+                return `
+                    <div class="log-entry" onclick="window.location.href='/log/${encodedTimestamp}'" style="cursor: pointer;">
+                        <div class="log-header">
+                            <div class="log-timestamp">${timestamp}</div>
+                            <div class="log-method">${entry.method.toUpperCase()}</div>
+                        </div>
+                        <div class="log-question">${entry.question}</div>
+                        <button class="log-query-toggle" onclick="event.stopPropagation(); toggleQuery(${index})">
+                            Toggle Query
+                        </button>
+                        <div class="log-query collapsed" id="query-${index}">${entry.query}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = logHTML;
+        }
+
+
+        function toggleQuery(index) {
+            const queryElement = document.getElementById(`query-${index}`);
+            queryElement.classList.toggle('collapsed');
+        }
+
+        // Load logs when page loads
+        window.addEventListener('load', loadLogs);
+    </script>
+</body>
+</html>

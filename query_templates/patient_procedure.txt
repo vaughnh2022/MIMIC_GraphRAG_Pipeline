@@ -5,8 +5,8 @@ Do not output any explanatory text outside of the SPARQL query block.
 ---
 
 ## CLASS AND PROPERTIES LIST
-Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
-Procedure[subjectReference, performedPeriodStart, performedPeriodEnd, bodySiteSystem, bodySiteCode, encounterReference, id, identifierSystem, identifierValue, status, codeCodingSystem, codeCodingCode, codeCodingDisplay, categoryCodingSystem, categoryCodingCode, collectedDateTime]
+Patient[deceased_datetime, gender, age, race, ethnicity, organization_reference, id, identifier]
+Procedure[category_code, patient_reference, period_start, period_end, bodysite_code, encounter_reference, id, identifier, status,  performed_datetime,d_items_code,d_items_display,icd9_code,icd9_display,icd10_code,icd10_display]
 
 ---
 
@@ -17,40 +17,40 @@ PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX se: <http://example.org/myontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?patientId ?procedureId ?codeDisplay ?categoryCode
+SELECT DISTINCT ?patientId ?procedureId ?icd10_display ?icd9_display ?category_code
 WHERE {
   ?procedure a fhir:Procedure .
-  ?procedure fhir:subjectReference ?patient .
+  ?procedure fhir:patient_reference ?patient .
 
   ?patient a fhir:Patient .
 
   # Optional Patient fields
-  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
-  OPTIONAL { ?patient fhir:gender ?gender. }
-  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
-  OPTIONAL { ?patient fhir:race ?race. }
-  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
-  OPTIONAL { ?patient fhir:managingOrganizationReference ?hospitalReference. }
-  OPTIONAL { ?patient fhir:id ?patientId. }
-  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
-  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+    OPTIONAL { ?patient fhir:deceased_datetime ?deceased_datetime. }
+    OPTIONAL { ?patient fhir:gender ?gender. }
+    OPTIONAL { ?patient fhir:age ?age. }
+    OPTIONAL { ?patient fhir:race ?race. }
+    OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+    OPTIONAL { ?patient fhir:id ?patientId. }
+    OPTIONAL { ?patient fhir:identifier ?patient_identifier. }
+    OPTIONAL { ?patient fhir:organization_reference ?organization. }
 
   # Optional Procedure Fields
-  OPTIONAL { ?procedure fhir:performedPeriodStart ?performedPeriodStart. }
-  OPTIONAL { ?procedure fhir:performedPeriodEnd ?performedPeriodEnd. }
-  OPTIONAL { ?procedure fhir:bodySiteSystem ?bodySiteSystem. }
-  OPTIONAL { ?procedure fhir:bodySiteCode ?bodySiteCode. }
-  OPTIONAL { ?procedure fhir:encounterReference ?encounterReference. }
-  OPTIONAL { ?procedure fhir:id ?procedureId. }
-  OPTIONAL { ?procedure fhir:identifierSystem ?identifierSystem. }
-  OPTIONAL { ?procedure fhir:identifierValue ?identifierValue. }
-  OPTIONAL { ?procedure fhir:status ?status. }
-  OPTIONAL { ?procedure fhir:codeCodingSystem ?codeSystem. }
-  OPTIONAL { ?procedure fhir:codeCodingCode ?codeCode. }
-  OPTIONAL { ?procedure fhir:codeCodingDisplay ?codeDisplay. }
-  OPTIONAL { ?procedure fhir:categoryCodingSystem ?categorySystem. }
-  OPTIONAL { ?procedure fhir:categoryCodingCode ?categoryCode. }
-  OPTIONAL { ?procedure fhir:collectedDateTime ?collectedDateTime. }
+    OPTIONAL { ?procedure fhir:category_code ?category_code. }
+    OPTIONAL { ?procedure fhir:period_start ?period_start. }
+    OPTIONAL { ?procedure fhir:period_end ?period_end. }
+    OPTIONAL { ?procedure fhir:bodysite_code ?bodysite_code. }
+    OPTIONAL { ?procedure fhir:encounter_reference ?encounter_reference. }
+    OPTIONAL { ?procedure fhir:id ?id. }
+    OPTIONAL { ?procedure fhir:identifier ?identifier. }
+    OPTIONAL { ?procedure fhir:status ?status. }
+    OPTIONAL { ?procedure fhir:performed_datetime ?performed_datetime. }
+    OPTIONAL { ?procedure fhir:d_items_code ?d_items_code. }
+    OPTIONAL { ?procedure fhir:d_items_display ?d_items_display. }
+    OPTIONAL { ?procedure fhir:icd9_code ?icd9_code. }
+    OPTIONAL { ?procedure fhir:icd9_display ?icd9_display. }
+    OPTIONAL { ?procedure fhir:icd10_code ?icd10_code. }
+    OPTIONAL { ?procedure fhir:icd10_display ?icd10_display. }
+
 
 
 }
@@ -58,8 +58,10 @@ WHERE {
 ---
 ## QUERY CONSTRUCTION RULES
 -Always filter using FILTER(
-  CONTAINS(LCASE(STR(?codeDisplay)), "your-display-text-here") ||
-  CONTAINS(LCASE(STR(?categoryCode)), "your-display-text-here")
+  CONTAINS(LCASE(STR(?icd10_display)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?icd9_display)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?d_items_display)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?category_code)), "your-display-text-here")
 ) 
 -Keep as many fields optional as possible while still working as a query
-
+-Always use GROUP BY when using average or count queries

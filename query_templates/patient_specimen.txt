@@ -5,8 +5,8 @@ Do not output any explanatory text outside of the SPARQL query block.
 ---
 
 ## CLASS AND PROPERTIES LIST
-Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
-Specimen[subjectReference,id,typeCodingSystem,typeCodingCode,typeCodingDisplay,identifierSystem,identifierValue,collectedDateTime]
+Patient[deceased_datetime, gender, age, race, ethnicity, organization_reference, id, identifier]
+Specimen[lab_fluid_code, spec_type_desc_code, spec_type_desc_display, collected_datetime, patient_reference, id, identifier]
 
 ---
 
@@ -17,40 +17,39 @@ PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX se: <http://example.org/myontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?patientId ?specimenId ?typeCode ?typeDisplay ?collectedDateTime ?identifierValue
+SELECT DISTINCT ?patientId ?specimenId ?collected_datetime ?spec_type_desc_display ?spec_type_desc_code ?lab_fluid_code
 WHERE {
   ?specimen a fhir:Specimen .
-  ?specimen fhir:subjectReference ?patient .
+  ?specimen fhir:patient_reference ?patient .
 
   ?patient a fhir:Patient .
 
   # Optional Patient fields
-  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
-  OPTIONAL { ?patient fhir:gender ?gender. }
-  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
-  OPTIONAL { ?patient fhir:race ?race. }
-  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
-  OPTIONAL { ?patient fhir:managingOrganizationReference ?managingOrganizationReference. }
-  OPTIONAL { ?patient fhir:id ?patientId. }
-  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
-  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+    OPTIONAL { ?patient fhir:deceased_datetime ?deceased_datetime. }
+    OPTIONAL { ?patient fhir:gender ?gender. }
+    OPTIONAL { ?patient fhir:age ?age. }
+    OPTIONAL { ?patient fhir:race ?race. }
+    OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+    OPTIONAL { ?patient fhir:id ?patientId. }
+    OPTIONAL { ?patient fhir:identifier ?patient_identifier. }
+    OPTIONAL { ?patient fhir:organization_reference ?organization. }
 
-  # Optional Specimen fields
-  OPTIONAL { ?specimen fhir:id ?specimenId. }
-  OPTIONAL { ?specimen fhir:typeCodingSystem ?typeSystem. }
-  OPTIONAL { ?specimen fhir:typeCodingCode ?typeCode. }
-  OPTIONAL { ?specimen fhir:typeCodingDisplay ?typeDisplay. }
-  OPTIONAL { ?specimen fhir:identifierSystem ?identifierSystem. }
-  OPTIONAL { ?specimen fhir:identifierValue ?identifierValue. }
-  OPTIONAL { ?specimen fhir:collectedDateTime ?collectedDateTime. }
+    # Optional Specimen Fields
+    OPTIONAL { ?specimen fhir:lab_fluid_code ?lab_fluid_code. }
+    OPTIONAL { ?specimen fhir:spec_type_desc_code ?spec_type_desc_code. }
+    OPTIONAL { ?specimen fhir:spec_type_desc_display ?spec_type_desc_display. }
+    OPTIONAL { ?specimen fhir:collected_datetime ?collected_datetime. }
+    OPTIONAL { ?specimen fhir:id ?id. }
+    OPTIONAL { ?specimen fhir:identifier ?identifier. }
+
 
 }
 
 ---
 ## QUERY CONSTRUCTION RULES
 -Always filter using FILTER(
-  CONTAINS(LCASE(STR(?typeCode)), "your-display-text-here") ||
-  CONTAINS(LCASE(STR(?typeDisplay)), "your-display-text-here")
+  CONTAINS(LCASE(STR(?spec_type_desc_code)), "your-display-text-here") ||
+  CONTAINS(LCASE(STR(?spec_type_desc_display)), "your-display-text-here")
 ) 
 -Keep as many fields optional as possible while still working as a query
 

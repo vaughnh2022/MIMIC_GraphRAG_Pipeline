@@ -10,9 +10,8 @@ Organization query
 Observation query
 MedicationAdministration query
 Medication query
-    -for all queries that use the term prescribed use this template
 MedicationRequest query
-    -for queries with dosage instructions use this template
+    -for queries asking for medication name use this template
 MedicationDispense query
 Patient query
 none of the above

@@ -5,9 +5,9 @@ Do not output any explanatory text outside of the SPARQL query block.
 ---
 
 ## CLASS AND PROPERTIES LIST
-Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
-MedicationRequest[medicationReference, intent, dispenseRequestValidityPeriodStart, dispenseRequestValidityPeriodEnd, identifierTypeCodingSystem, identifierTypeCodingCode, identifierTypeCodingDisplay, subjectReference, encounterReference, id, identifierSystem, identifierValue, status, mccCodingSystem, mccCodingCode]
-DosageInstruction[doseQuantitySystem, doseQuantityCode, doseQuantityUnit, doseQuantityValue, maxDosePerPeriodDenominatorSystem, maxDosePerPeriodDenominatorUnit, maxDosePerPeriodDenominatorValue, maxDosePerPeriodNumeratorValue, timingCodeCodingSystem, timingCodeCodingCode, timingRepeatDuration, timingRepeatDurationUnit, routeCodingCode, routeCodingSystem]
+Patient[deceased_datetime, gender, age, race, ethnicity, organization_reference, id, identifier]
+MedicationRequest[intent, identifier_type_code, identifier_type_display, medication_poe_iv, authored_on, encounter_reference, patient_reference, dosageInstruction_reference, id, identifier, status, period_start, period_end, medication_name]
+DosageInstruction[doseQuantity_code, doseQuantity_unit, doseQuantity_value, maxDosePerPeriod_denominator_unit, maxDosePerPeriod_denominator_value, maxDosePerPeriod_numerator_value, medication_frequency_code, timing_repeat_duration, timing_repeat_duration_unit]
 
 ---
 
@@ -18,60 +18,54 @@ PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX se: <http://example.org/myontology#>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-SELECT DISTINCT ?patientId ?medicationRequestId ?mccCodingCode ?codeCodingCode ?identifierValue
+SELECT DISTINCT ?patientId ?medicationRequestId ?medication_name ?status
 WHERE {
   ?medicationRequest a fhir:MedicationRequest .
-  ?medicationRequest fhir:subjectReference ?patient .
+  ?medicationRequest fhir:patient_reference ?patient .
 
   ?patient a fhir:Patient .
 
   # Optional Patient fields
-  OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
-  OPTIONAL { ?patient fhir:gender ?gender. }
-  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
-  OPTIONAL { ?patient fhir:race ?race. }
-  OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
-  OPTIONAL { ?patient fhir:managingOrganizationReference ?managingOrganizationReference. }
-  OPTIONAL { ?patient fhir:id ?patientId. }
-  OPTIONAL { ?patient fhir:identifierSystem ?patientIdentifierSystem. }
-  OPTIONAL { ?patient fhir:identifierValue ?patientIdentifierValue. }
+    OPTIONAL { ?patient fhir:deceased_datetime ?deceased_datetime. }
+    OPTIONAL { ?patient fhir:gender ?gender. }
+    OPTIONAL { ?patient fhir:age ?age. }
+    OPTIONAL { ?patient fhir:race ?race. }
+    OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
+    OPTIONAL { ?patient fhir:id ?patientId. }
+    OPTIONAL { ?patient fhir:identifier ?patient_identifier. }
+    OPTIONAL { ?patient fhir:organization_reference ?organization. }
 
   # Optional MedicationRequest fields
-  OPTIONAL { ?medicationRequest fhir:medicationReference ?medicationReference. }
   OPTIONAL { ?medicationRequest fhir:intent ?intent. }
-  OPTIONAL { ?medicationRequest fhir:dispenseRequestValidityPeriodStart ?dispenseRequestValidityPeriodStart. }
-  OPTIONAL { ?medicationRequest fhir:dispenseRequestValidityPeriodEnd ?dispenseRequestValidityPeriodEnd. }
-  OPTIONAL { ?medicationRequest fhir:identifierTypeCodingSystem ?identifierTypeCodingSystem. }
-  OPTIONAL { ?medicationRequest fhir:identifierTypeCodingCode ?identifierTypeCodingCode. }
-  OPTIONAL { ?medicationRequest fhir:identifierTypeCodingDisplay ?identifierTypeCodingDisplay. }
-  OPTIONAL { ?medicationRequest fhir:subjectReference ?subjectReference. }
-  OPTIONAL { ?medicationRequest fhir:encounterReference ?encounterReference. }
+  OPTIONAL { ?medicationRequest fhir:identifier_type_code ?identifier_type_code. }
+  OPTIONAL { ?medicationRequest fhir:identifier_type_display ?identifier_type_display. }
+  OPTIONAL { ?medicationRequest fhir:medication_poe_iv ?medication_poe_iv. }
+  OPTIONAL { ?medicationRequest fhir:authored_on ?authored_on. }
+  OPTIONAL { ?medicationRequest fhir:encounter_reference ?encounter_reference. }
+  OPTIONAL { ?medicationRequest fhir:dosageInstruction_reference ?dosageInstruction_reference. }
   OPTIONAL { ?medicationRequest fhir:id ?medicationRequestId. }
-  OPTIONAL { ?medicationRequest fhir:identifierSystem ?MRidentifierSystem. }
-  OPTIONAL { ?medicationRequest fhir:identifierValue ?MRidentifierValue. }
+  OPTIONAL { ?medicationRequest fhir:identifier ?identifier. }
   OPTIONAL { ?medicationRequest fhir:status ?status. }
-  OPTIONAL { ?medicationRequest fhir:mccCodingSystem ?mccCodingSystem. }
-  OPTIONAL { ?medicationRequest fhir:mccCodingCode ?mccCode. }
+  OPTIONAL { ?medicationRequest fhir:period_start ?period_start. }
+  OPTIONAL { ?medicationRequest fhir:period_end ?period_end. }
+  OPTIONAL { ?medicationRequest fhir:medication_name ?medication_name. }
+
 
   # Optional dosageInstruction fields
-  OPTIONAL {
-    ?medicationDispense fhir:dosageInstructionReference ?dosageInstruction.
+    OPTIONAL {
+    ?medicationDispense fhir:dosageInstruction_reference ?dosageInstruction.
     ?dosageInstruction a fhir:DosageInstruction .
-    OPTIONAL { ?dosageInstruction fhir:doseQuantitySystem ?doseQuantitySystem. }
-    OPTIONAL { ?dosageInstruction fhir:doseQuantityCode ?doseQuantityCode. }
-    OPTIONAL { ?dosageInstruction fhir:doseQuantityUnit ?doseQuantityUnit. }
-    OPTIONAL { ?dosageInstruction fhir:doseQuantityValue ?doseQuantityValue. }
-    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodDenominatorSystem ?maxDosePerPeriodDenominatorSystem. }
-    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodDenominatorUnit ?maxDosePerPeriodDenominatorUnit. }
-    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodDenominatorValue ?maxDosePerPeriodDenominatorValue. }
-    OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriodNumeratorValue ?maxDosePerPeriodNumeratorValue. }
-    OPTIONAL { ?dosageInstruction fhir:timingCodeCodingSystem ?timingCodeCodingSystem. }
-    OPTIONAL { ?dosageInstruction fhir:timingCodeCodingCode ?timingCodeCodingCode. }
-    OPTIONAL { ?dosageInstruction fhir:timingRepeatDuration ?timingRepeatDuration. }
-    OPTIONAL { ?dosageInstruction fhir:timingRepeatDurationUnit ?timingRepeatDurationUnit. }
-    OPTIONAL { ?dosageInstruction fhir:routeCodingCode ?routeCodingCode. }
-    OPTIONAL { ?dosageInstruction fhir:routeCodingSystem ?routeCodingSystem. }
-  }
+      # Optional DosageInstruction fields
+      OPTIONAL { ?dosageInstruction fhir:doseQuantity_code ?doseQuantity_code. }
+      OPTIONAL { ?dosageInstruction fhir:doseQuantity_unit ?doseQuantity_unit. }
+      OPTIONAL { ?dosageInstruction fhir:doseQuantity_value ?doseQuantity_value. }
+      OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriod_denominator_unit ?maxDosePerPeriod_denominator_unit. }
+      OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriod_denominator_value ?maxDosePerPeriod_denominator_value. }
+      OPTIONAL { ?dosageInstruction fhir:maxDosePerPeriod_numerator_value ?maxDosePerPeriod_numerator_value. }
+      OPTIONAL { ?dosageInstruction fhir:medication_frequency_code ?medication_frequency_code. }
+      OPTIONAL { ?dosageInstruction fhir:timing_repeat_duration ?timing_repeat_duration. }
+      OPTIONAL { ?dosageInstruction fhir:timing_repeat_duration_unit ?timing_repeat_duration_unit. }
+    }
 
 
 }

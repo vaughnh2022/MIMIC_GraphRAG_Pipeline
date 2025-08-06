@@ -5,7 +5,7 @@ Do not output any explanatory text outside of the SPARQL query block.
 ---
 
 ## CLASS AND PROPERTIES LIST
-Patient[deceasedDateTime, gender, birthDate, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
+Patient[deceasedDateTime, gender, age, race, ethnicity, managingOrganizationReference, id, identifierSystem, identifierValue]
 MedicationAdministration[requestReference, dosageRateQuantitySystem, dosageRateQuantityUnit, dosageRateQuantityValue, dosageRateCode, methodCodingcode, methodCodingsystem, doseSystem, doseText, doseUnit, doseCode, doseValue, effectivePeriodStart, effectivePeriodEnd, subjectReference, contextReference, id, status, codeCodingSystem, codeCodingCode, codeCodingDisplay, categoryCodingSystem, categoryCodingCode, effectiveDateTime]
 
 ---
@@ -27,7 +27,7 @@ WHERE {
   # Optional Patient fields
   OPTIONAL { ?patient fhir:deceasedDateTime ?deceasedDateTime. }
   OPTIONAL { ?patient fhir:gender ?gender. }
-  OPTIONAL { ?patient fhir:birthDate ?birthDate. }
+  OPTIONAL { ?patient fhir:age ?age. }
   OPTIONAL { ?patient fhir:race ?race. }
   OPTIONAL { ?patient fhir:ethnicity ?ethnicity. }
   OPTIONAL { ?patient fhir:managingOrganizationReference ?managingOrganizationReference. }
